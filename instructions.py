@@ -50,7 +50,7 @@ def describe_route(m: TopoMap, route: Route) -> dict:
     steps = []
     for u, v in zip(route.nodes, route.nodes[1:]):
         text, vertical = _step_text(m, u, v)
-        dist = g.edges[u, v]["distances"]
+        dist = g.edges[u, v]["distance"]
         if not vertical:
             text += f" — {_fmt_distance(dist, unit)}"
         steps.append({"from": u, "to": v, "distance": dist, "text": text + "."})
