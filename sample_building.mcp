@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "name": "Sample Research Building",
+    "version": "1.0",
+    "distance_unit": "meters",
+    "defaults": {
+      "bidirectional": true,
+      "accessible": true,
+      "locked": false
+    }
+  },
+  "nodes": [
+    { "id": "entrance_main", "name": "Main Entrance", "type": "exit", "floor": 1 },
+    { "id": "lobby", "name": "Lobby", "type": "room", "floor": 1 },
+    { "id": "corridor_1a", "name": "West Corridor", "type": "corridor", "floor": 1 },
+    { "id": "corridor_1b", "name": "East Corridor", "type": "corridor", "floor": 1 },
+    { "id": "office_101", "name": "Office 101", "type": "room", "floor": 1 },
+    { "id": "restroom_1", "name": "Restroom (Floor 1)", "type": "room", "floor": 1, "tags": ["restroom"] },
+    { "id": "lab_102", "name": "Robotics Lab", "type": "room", "floor": 1 },
+    { "id": "kitchen", "name": "Kitchen", "type": "room", "floor": 1 },
+    { "id": "exit_rear", "name": "Rear Exit", "type": "exit", "floor": 1 },
+    { "id": "exit_emergency", "name": "Emergency Exit", "type": "exit", "floor": 1 },
+    { "id": "stairwell_1", "name": "Stairwell (Floor 1)", "type": "stairs", "floor": 1 },
+    { "id": "elevator_1", "name": "Elevator (Floor 1)", "type": "elevator", "floor": 1 },
+    { "id": "stairwell_2", "name": "Stairwell (Floor 2)", "type": "stairs", "floor": 2 },
+    { "id": "elevator_2", "name": "Elevator (Floor 2)", "type": "elevator", "floor": 2 },
+    { "id": "corridor_2a", "name": "Upper Corridor", "type": "corridor", "floor": 2 },
+    { "id": "meeting_201", "name": "Meeting Room 201", "type": "room", "floor": 2 },
+    { "id": "library_202", "name": "Library", "type": "room", "floor": 2 },
+    { "id": "server_room", "name": "Server Room", "type": "room", "floor": 2, "tags": ["restricted"] }
+  ],
+  "edges": [
+    { "source": "entrance_main", "target": "lobby", "distance": 4 },
+    { "source": "lobby", "target": "corridor_1a", "distance": 6 },
+    { "source": "lobby", "target": "elevator_1", "distance": 3 },
+    { "source": "corridor_1a", "target": "office_101", "distance": 3 },
+    { "source": "corridor_1a", "target": "restroom_1", "distance": 2 },
+    { "source": "corridor_1a", "target": "stairwell_1", "distance": 4 },
+    { "source": "corridor_1a", "target": "corridor_1b", "distance": 10 },
+    { "source": "corridor_1b", "target": "lab_102", "distance": 3 },
+    { "source": "corridor_1b", "target": "kitchen", "distance": 4 },
+    { "source": "lab_102", "target": "kitchen", "distance": 5, "description": "through the side door" },
+    { "source": "kitchen", "target": "exit_rear", "distance": 3 },
+    { "source": "corridor_1b", "target": "exit_emergency", "distance": 8, "bidirectional": false, "description": "emergency exit, no re-entry" },
+    { "source": "stairwell_1", "target": "stairwell_2", "distance": 8, "accessible": false, "description": "take the stairs up one floor" },
+    { "source": "elevator_1", "target": "elevator_2", "distance": 5, "description": "take the elevator to floor 2" },
+    { "source": "stairwell_2", "target": "corridor_2a", "distance": 3 },
+    { "source": "elevator_2", "target": "corridor_2a", "distance": 3 },
+    { "source": "corridor_2a", "target": "meeting_201", "distance": 4 },
+    { "source": "corridor_2a", "target": "library_202", "distance": 6 },
+    { "source": "corridor_2a", "target": "server_room", "distance": 5, "locked": true }
+  ]
+}
