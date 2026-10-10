@@ -9,6 +9,8 @@ An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant navig
 
 Routes come back as step-by-step directions with distances, and when no route exists the server explains why: a locked door, stairs, an avoided location, or a one-way connection.
 
+A Streamlit app shows the same routing on a floor plan.
+
 ## Example
 
 > **User:** Using the building map, how do I get to the Server Room from the lobby?
@@ -32,6 +34,7 @@ Routes come back as step-by-step directions with distances, and when no route ex
 - **Explained failures:** when no route exists, the server identifies which constraint blocks it
 - **Map validation** with specific error messages (unknown nodes, duplicate ids, invalid distances, …)
 - **Name or id lookup:** "Robotics Lab" and `lab_102` both work
+- **Visual explorer:** a Streamlit app that draws the route on each floor plan
 
 ## Project structure
 
@@ -40,6 +43,7 @@ Routes come back as step-by-step directions with distances, and when no route ex
 | `graph.py` | Loads and validates the map, runs all graph queries (NetworkX) |
 | `instructions.py` | Turns a route into human-readable directions |
 | `server.py` | MCP server exposing the queries as tools (FastMCP) |
+| `app.py` | Visual explorer (Streamlit + Plotly), uses the same core modules |
 | `sample_building.json` | Two-floor example building used by default and by the tests |
 | `tests/test_toponav.py` | Test suite (pytest) |
 
@@ -132,6 +136,28 @@ The routing tools accept the same constraints:
 
 Every route result states the conditions it was computed under.
 
+## Visual explorer
+
+```bash
+streamlit run app.py
+```
+
+This opens the app in your browser (default `http://localhost:8501`). Pick a start and destination in the sidebar, or choose "Nearest exit", "Nearest elevator" or "Nearest stairs", and set the conditions: step-free only, allow locked doors, locations to avoid.
+
+The plan shows:
+
+- **The route** in green, with floor changes marked ("Stairs up to floor 2", "Arrive from floor 1")
+- **Locked doors** as red dashed lines
+- **Avoided locations** greyed out
+- **One-way connections** with an arrow
+- **Place types** by shape: square room, circle corridor, diamond exit, triangle stairs, hexagon elevator
+
+When no route exists, the app shows the same explanation the MCP server returns.
+
+The app imports `graph.py` and `instructions.py` directly; it doesn't go through MCP. The core logic is independent of the interface, and both the assistant and the app use it.
+
+Floor plans are drawn from the optional `position` field on each node (see the map format below). Nodes without a position are placed automatically, which works but looks less like a building.
+
 ## Using your own map
 
 By default the server loads `sample_building.json` from its own folder. To use another map, set the `TOPONAV_MAP` environment variable in the Claude Desktop config:
@@ -165,6 +191,7 @@ A map has three sections: `meta`, `nodes` and `edges`.
 | `type` | yes | `room`, `corridor`, `exit`, `stairs` or `elevator` |
 | `floor` | no | Floor number, used to describe floor changes |
 | `tags` | no | e.g. `["restricted"]`, which is mentioned when a route is blocked |
+| `position` | no | `{ "x": 10, "y": 4 }`, used only by the visual explorer to draw the plan. Give stairs and elevators the same position on every floor so they line up |
 
 **`edges`**: the connections.
 
@@ -190,7 +217,7 @@ The tests cover map validation, all routing scenarios (constraints, locked doors
 
 ## Known limitations
 
-- **No turn-by-turn directions.** The map is topological: it knows which places connect, not where they are, so it can't say "turn left". Directions are a sequence of places with distances.
+- **No turn-by-turn directions.** Routing is topological: it uses which places connect, not where they are, so it can't say "turn left". Directions are a sequence of places with distances. Node positions exist but are currently only used for drawing.
 - **Distances only.** There are no walking-time estimates.
 - **Static data.** The map has no live status, such as an elevator being out of service or a door being temporarily locked.
 - **Exact name matching.** Locations must be named exactly (case-insensitive) or by id. The assistant usually handles this by listing locations first, but there is no fuzzy matching in the server.
@@ -199,8 +226,8 @@ The tests cover map validation, all routing scenarios (constraints, locked doors
 
 ## Roadmap
 
-- Node coordinates for turn-by-turn directions
+- Turn-by-turn directions ("turn left"), using the node positions
 - Fuzzy name matching
 - Walking-time estimates
 - Multiple loaded maps
-- A visual map view (Streamlit or React)
+- Hosted demo of the visual explorer
